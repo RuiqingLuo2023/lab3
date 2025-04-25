@@ -73,6 +73,58 @@ This is a parameterized FIR (Finite Impulse Response) filter core implemented in
 
 ---
 
+# FIR Filter – Verilog Specification
+
+## 🔧 Parameters
+
+- **Data_Width**: 32  
+- **Tap_Num**: 11  
+- **Data_Num**: *TBD – Based on size of data file*
+
+---
+
+## 🔌 Interface
+
+### Stream Interface
+- `data_in`: stream (`X[n]`)
+- `data_out`: stream (`Y[n]`)
+
+### AXI-Lite Interface
+- `coef[Tap_Num-1:0]`: FIR coefficients  
+- `len`: number of input data samples  
+- `ap_start`: start signal (valid for one clock cycle)  
+- `ap_done`: processing complete flag  
+
+---
+
+## ⚙️ Architecture
+
+- **Computation Unit**:  
+  Uses **one multiplier** and **one adder**
+
+- **Shift Register**:  
+  Implemented with **SRAM**  
+  - Module: `Shift_RAM`  
+  - Size: 10 data words (10 DW)
+
+- **Tap Coefficient Storage**:  
+  Implemented with **SRAM**  
+  - Module: `Tap_RAM`  
+  - Size: 11 data words (11 DW)  
+  - Initialized via **AXI-Lite write**
+
+---
+
+## 🚀 Operation Flow
+
+- Pulse `ap_start` high for one clock to launch FIR engine  
+- Stream input `X[n]` via `data_in`  
+  - Input rate depends on FIR processing speed  
+  - Use AXI-Stream `valid/ready` handshake for flow control  
+- Stream output `Y[n]` via `data_out`  
+  - Output rate also depends on FIR processing speed
+
+
 ## 📄 License
 
 MIT License © 2024
